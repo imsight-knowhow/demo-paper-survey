@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{torch.nn.attention.flex\PYGZus{}attention} \PYG{k+kn}{import} \PYG{n}{BlockMask}\PYG{p}{,} \PYG{n}{create\PYGZus{}block\PYGZus{}mask}
+
+\PYG{k}{def} \PYG{n+nf}{create\PYGZus{}attention\PYGZus{}mask\PYGZus{}inference}\PYG{p}{(}\PYG{n}{causal\PYGZus{}point}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{BlockMask}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} causal\PYGZus{}point is the index of the first token in the prediction block  }
+    \PYG{k}{def} \PYG{n+nf}{mask\PYGZus{}mod}\PYG{p}{(}\PYG{n}{b}\PYG{p}{,} \PYG{n}{h}\PYG{p}{,} \PYG{n}{q\PYGZus{}idx}\PYG{p}{,} \PYG{n}{kv\PYGZus{}idx}\PYG{p}{):}
+        \PYG{n}{is\PYGZus{}causal} \PYG{o}{=} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZlt{}=} \PYG{n}{q\PYGZus{}idx}\PYG{p}{)}
+        \PYG{n}{is\PYGZus{}past\PYGZus{}causal\PYGZus{}point} \PYG{o}{=} \PYG{p}{(}\PYG{n}{causal\PYGZus{}point} \PYG{o}{\PYGZlt{}=} \PYG{n}{q\PYGZus{}idx}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{is\PYGZus{}causal} \PYG{o}{|} \PYG{n}{is\PYGZus{}past\PYGZus{}causal\PYGZus{}point}
+    \PYG{k}{return} \PYG{n}{create\PYGZus{}block\PYGZus{}mask}\PYG{p}{(}\PYG{n}{mask\PYGZus{}mod}\PYG{p}{,} \PYG{n}{B}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{H}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{Q\PYGZus{}LEN}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{,} \PYG{n}{KV\PYGZus{}LEN}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{)}
+\end{Verbatim}

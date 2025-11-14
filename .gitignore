@@ -153,3 +153,5 @@ vector_store/
 checkpoints/
 # pixi environments
 .pixi
+
+tmp/

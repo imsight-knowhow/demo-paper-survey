@@ -1,0 +1,105 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Makefile"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/57D80C30C1FBC83C511B51EB903AEDC695C73361DEE946F0FA5D4B5B3DBB8661.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/A082E2DCCE59D0B6731639BA8F91EDB1AE0B17B0B69972F71C2D53466267E137.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/B6DB15C65EB5769F88ABE982C3BC2CC2CEE634BC4354F99FFB5F39094E179311.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/CAB06249ACDBB6E0E2E76D6373281153FB9A19089D9D311927642829EAE47D30.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/EE59B60AADCCF3FE97570283D3B18C072D2A397F0B2A8FF640E4CD5F58B43555.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-output/vs.pygstyle"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Optimistic.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/logometa.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/optimistic.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/plainnat.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "code/attention_inference.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "code/attention_train.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "code/constants.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "code/train.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "code/transformer_roofline.py"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "example_paper.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "listing1.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "listing2.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "listing3.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "listing4.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "listing5.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "vs.pygstyle"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

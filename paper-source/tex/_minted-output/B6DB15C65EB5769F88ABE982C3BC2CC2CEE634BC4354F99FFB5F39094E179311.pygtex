@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{} H100 GPU Specifications \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+\PYG{n}{BYTES}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{1}  \PYG{c+c1}{\PYGZsh{} model weights, we assume FP8}
+\PYG{n}{PEAK\PYGZus{}FLOPS}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mi}{1978} \PYG{o}{*} \PYG{l+m+mf}{1e12}  \PYG{c+c1}{\PYGZsh{} peak flops for FP8}
+\PYG{n}{PEAK\PYGZus{}FLOPS\PYGZus{}ATTENTION}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mi}{989} \PYG{o}{*} \PYG{l+m+mf}{1e12}  \PYG{c+c1}{\PYGZsh{} attention is done in BF16}
+\PYG{n}{MEMORY\PYGZus{}BANDWIDTH}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mf}{3.35} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1024}\PYG{o}{**}\PYG{l+m+mi}{4}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} memory bandwidth in B/s}
+
+\PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{} Transformer Model Configuration \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+\PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{4096}
+\PYG{n}{FFN\PYGZus{}DIM}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{4} \PYG{o}{*} \PYG{n}{HIDDEN\PYGZus{}DIM}
+\PYG{n}{NUM\PYGZus{}HEADS}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{32}
+\PYG{n}{HEAD\PYGZus{}DIM}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{HIDDEN\PYGZus{}DIM} \PYG{o}{//} \PYG{n}{NUM\PYGZus{}HEADS}
+\PYG{n}{NUM\PYGZus{}KV\PYGZus{}HEADS}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{8}
+\PYG{n}{BYTES\PYGZus{}PER\PYGZus{}KV\PYGZus{}ELEMENT}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mi}{1}  \PYG{c+c1}{\PYGZsh{} bytes used per KV element}
+\end{Verbatim}

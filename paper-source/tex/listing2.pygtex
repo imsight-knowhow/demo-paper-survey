@@ -1,0 +1,33 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{input\PYGZus{}ids} \PYG{o}{=} \PYG{n}{sequence}\PYG{p}{[:,} \PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+
+\PYG{n}{ar\PYGZus{}label\PYGZus{}ids} \PYG{o}{=} \PYG{n}{sequence}\PYG{p}{[:,} \PYG{l+m+mi}{1}\PYG{p}{:]}
+\PYG{n}{parallel\PYGZus{}label\PYGZus{}ids} \PYG{o}{=} \PYG{n}{input\PYGZus{}ids}\PYG{o}{.}\PYG{n}{clone}\PYG{p}{()}
+
+\PYG{n}{bsz}\PYG{p}{,} \PYG{n}{seq\PYGZus{}len} \PYG{o}{=} \PYG{n}{input\PYGZus{}ids}\PYG{o}{.}\PYG{n}{shape}
+
+\PYG{n}{block\PYGZus{}len} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{n}{max\PYGZus{}block\PYGZus{}size}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{p}{))}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+\PYG{n}{attention\PYGZus{}mask} \PYG{o}{=} \PYG{n}{create\PYGZus{}attention\PYGZus{}mask\PYGZus{}train}\PYG{p}{(}\PYG{n}{seq\PYGZus{}len}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{,} \PYG{n}{block\PYGZus{}len}\PYG{o}{=}\PYG{n}{block\PYGZus{}len}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} 1. Compute masked\PYGZus{}input}
+\PYG{n}{time} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{rand}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{p}{(}\PYG{n}{bsz}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{),} \PYG{n}{device}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}cuda\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{input\PYGZus{}ids\PYGZus{}mask} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{rand}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{n}{input\PYGZus{}ids}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{,} \PYG{n}{device}\PYG{o}{=}\PYG{n}{input\PYGZus{}ids}\PYG{o}{.}\PYG{n}{device}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n}{time}
+
+\PYG{n}{masked\PYGZus{}input} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{where}\PYG{p}{(}\PYG{n}{condition}\PYG{o}{=}\PYG{n}{input\PYGZus{}ids\PYGZus{}mask}\PYG{p}{,} \PYG{n+nb}{input}\PYG{o}{=}\PYG{n}{tokenizer}\PYG{o}{.}\PYG{n}{mask\PYGZus{}id}\PYG{p}{,} \PYG{n}{other}\PYG{o}{=}\PYG{n}{input\PYGZus{}ids}\PYG{p}{)}
+
+\PYG{n}{input\PYGZus{}ids} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cat}\PYG{p}{([}\PYG{n}{input\PYGZus{}ids}\PYG{p}{,} \PYG{n}{masked\PYGZus{}input}\PYG{p}{],} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} 2. Compute label\PYGZus{}ids}
+\PYG{n}{parallel\PYGZus{}label\PYGZus{}ids}\PYG{p}{[:,} \PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{][}\PYG{n}{input\PYGZus{}ids\PYGZus{}mask}\PYG{p}{]} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{100}
+
+\PYG{n}{label\PYGZus{}ids} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cat}\PYG{p}{([}\PYG{n}{ar\PYGZus{}label\PYGZus{}ids}\PYG{p}{,} \PYG{n}{parallel\PYGZus{}label\PYGZus{}ids}\PYG{p}{],} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} 3. Each unique token location (in AR and parallel) should get the same positional embeddings.}
+\PYG{n}{positional\PYGZus{}embeddings} \PYG{o}{=} \PYG{n}{get\PYGZus{}positional\PYGZus{}embeddings}\PYG{p}{(}\PYG{n}{seq\PYGZus{}len}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{)}
+\PYG{n}{positional\PYGZus{}embeddings} \PYG{o}{=} \PYG{n}{positional\PYGZus{}embeddings}\PYG{o}{.}\PYG{n}{repeat}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{n}{loss} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{input\PYGZus{}ids}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{attention\PYGZus{}mask}\PYG{p}{,} \PYG{n}{targets}\PYG{o}{=}\PYG{n}{label\PYGZus{}ids}\PYG{p}{,} \PYG{n}{positional\PYGZus{}embeddings}\PYG{o}{=}\PYG{n}{positional\PYGZus{}embeddings}\PYG{p}{)}
+\PYG{n}{loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+
+\PYG{o}{...}
+\end{Verbatim}

@@ -1,0 +1,48 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{m}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{n}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{k}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]:}
+    \PYG{l+s+s2}{\PYGZdq{}Returns the runtime (in s) and flops of doing a `C=A@B` with A/B of shape `[m, k]/[k, n]` \PYGZdq{}}
+    \PYG{n}{total\PYGZus{}IO} \PYG{o}{=} \PYG{p}{(}
+        \PYG{n}{m} \PYG{o}{*} \PYG{n}{k} \PYG{o}{*} \PYG{n}{BYTES} \PYG{o}{+} \PYG{c+c1}{\PYGZsh{} read A}
+        \PYG{n}{n} \PYG{o}{*} \PYG{n}{k} \PYG{o}{*} \PYG{n}{BYTES} \PYG{o}{+} \PYG{c+c1}{\PYGZsh{} read B}
+        \PYG{n}{m} \PYG{o}{*} \PYG{n}{n} \PYG{o}{*} \PYG{n}{BYTES}   \PYG{c+c1}{\PYGZsh{} write C}
+    \PYG{p}{)}
+    \PYG{n}{total\PYGZus{}flops} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{m} \PYG{o}{*} \PYG{n}{n} \PYG{o}{*} \PYG{n}{k}
+    \PYG{k}{return} \PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{total\PYGZus{}IO} \PYG{o}{/} \PYG{n}{MEMORY\PYGZus{}BANDWIDTH}\PYG{p}{,} \PYG{n}{total\PYGZus{}flops} \PYG{o}{/} \PYG{n}{PEAK\PYGZus{}FLOPS}\PYG{p}{),} \PYG{n}{total\PYGZus{}flops}
+
+\PYG{c+c1}{\PYGZsh{} Attention roofline analysis}
+\PYG{k}{def} \PYG{n+nf}{calculate\PYGZus{}fused\PYGZus{}attention\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{block\PYGZus{}size}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{kv\PYGZus{}length}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+    \PYG{n}{num\PYGZus{}tokens} \PYG{o}{=} \PYG{n}{block\PYGZus{}size} \PYG{o}{*} \PYG{n}{batch\PYGZus{}size}
+    \PYG{c+c1}{\PYGZsh{} Memory in Q: (batch\PYGZus{}size, block\PYGZus{}size,  NUM\PYGZus{}HEADS, HEAD\PYGZus{}DIM)}
+    \PYG{n}{bytes\PYGZus{}Q} \PYG{o}{=} \PYG{n}{num\PYGZus{}tokens} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{BYTES}
+    \PYG{c+c1}{\PYGZsh{} Memory in K: (batch\PYGZus{}size, kv\PYGZus{}length, NUM\PYGZus{}KV\PYGZus{}HEADS, HEAD\PYGZus{}DIM)}
+    \PYG{n}{bytes\PYGZus{}K} \PYG{o}{=} \PYG{n}{batch\PYGZus{}size} \PYG{o}{*} \PYG{n}{kv\PYGZus{}length} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}KV\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{BYTES\PYGZus{}PER\PYGZus{}KV\PYGZus{}ELEMENT}
+    \PYG{c+c1}{\PYGZsh{} Flops P=QK\PYGZca{}T}
+    \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{flops\PYGZus{}QKt} \PYG{o}{=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{kv\PYGZus{}length}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM}\PYG{p}{)}    
+    \PYG{c+c1}{\PYGZsh{} Softmax memory transfer is ignored as it\PYGZsq{}s not read or stored in memory, flops negliglbe}
+    \PYG{n}{bytes\PYGZus{}softmax} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{c+c1}{\PYGZsh{} Memory in V: (batch\PYGZus{}size, kv\PYGZus{}length, NUM\PYGZus{}KV\PYGZus{}HEADS, HEAD\PYGZus{}DIM)}
+    \PYG{n}{bytes\PYGZus{}V} \PYG{o}{=} \PYG{n}{batch\PYGZus{}size} \PYG{o}{*} \PYG{n}{kv\PYGZus{}length} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}KV\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{BYTES\PYGZus{}PER\PYGZus{}KV\PYGZus{}ELEMENT}
+    \PYG{c+c1}{\PYGZsh{} Flops PV}
+    \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{flops\PYGZus{}PV} \PYG{o}{=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{kv\PYGZus{}length}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM}\PYG{p}{)}    
+    \PYG{c+c1}{\PYGZsh{} Memory out PV: (batch\PYGZus{}size, block\PYGZus{}size, NUM\PYGZus{}HEADS, HEAD\PYGZus{}DIM)}
+    \PYG{n}{bytes\PYGZus{}PV} \PYG{o}{=} \PYG{n}{num\PYGZus{}tokens} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{BYTES}
+
+    \PYG{n}{total\PYGZus{}memory} \PYG{o}{=} \PYG{n}{bytes\PYGZus{}Q} \PYG{o}{+} \PYG{n}{bytes\PYGZus{}K} \PYG{o}{+} \PYG{n}{bytes\PYGZus{}V} \PYG{o}{+} \PYG{n}{bytes\PYGZus{}PV} \PYG{o}{+} \PYG{n}{bytes\PYGZus{}softmax}
+    \PYG{n}{total\PYGZus{}flops} \PYG{o}{=} \PYG{n}{flops\PYGZus{}QKt} \PYG{o}{+} \PYG{n}{flops\PYGZus{}PV}
+    \PYG{k}{return} \PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{total\PYGZus{}memory} \PYG{o}{/} \PYG{n}{MEMORY\PYGZus{}BANDWIDTH}\PYG{p}{,} \PYG{n}{total\PYGZus{}flops} \PYG{o}{/} \PYG{n}{PEAK\PYGZus{}FLOPS\PYGZus{}ATTENTION}\PYG{p}{)}
+
+
+\PYG{c+c1}{\PYGZsh{} FFN roofline analysis}
+\PYG{k}{def} \PYG{n+nf}{calculate\PYGZus{}linear\PYGZus{}layers\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{block\PYGZus{}size}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+    \PYG{n}{num\PYGZus{}tokens} \PYG{o}{=} \PYG{n}{block\PYGZus{}size} \PYG{o}{*} \PYG{n}{batch\PYGZus{}size}
+    \PYG{c+c1}{\PYGZsh{} FFN: Up\PYGZhy{}projection}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{FFN\PYGZus{}DIM}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{c+c1}{\PYGZsh{} FFN: Down\PYGZhy{}projection}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{+=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM} \PYG{o}{*} \PYG{n}{FFN\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{c+c1}{\PYGZsh{} Attention linear layers}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{+=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} Q\PYGZhy{}proj}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{+=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}KV\PYGZus{}HEADS}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} K\PYGZhy{}proj}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{+=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{NUM\PYGZus{}KV\PYGZus{}HEADS}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} V\PYGZhy{}proj}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{+=} \PYG{n}{gemm\PYGZus{}roofline}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}HEADS} \PYG{o}{*} \PYG{n}{HEAD\PYGZus{}DIM}\PYG{p}{,} \PYG{n}{HIDDEN\PYGZus{}DIM}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} out\PYGZhy{}proj}
+    \PYG{k}{return} \PYG{n}{total\PYGZus{}time}
+\end{Verbatim}

@@ -1,0 +1,26 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{torch.nn.attention.flex\PYGZus{}attention} \PYG{k+kn}{import} \PYG{n}{BlockMask}\PYG{p}{,} \PYG{n}{create\PYGZus{}block\PYGZus{}mask}
+
+\PYG{k}{def} \PYG{n+nf}{create\PYGZus{}attention\PYGZus{}mask\PYGZus{}train}\PYG{p}{(}\PYG{n}{seq\PYGZus{}len}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{block\PYGZus{}len}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{BlockMask}\PYG{p}{:}  
+    \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{seq\PYGZus{}len} \PYG{o}{//} \PYG{l+m+mi}{2}
+    
+    \PYG{k}{def} \PYG{n+nf}{mask\PYGZus{}mod}\PYG{p}{(}\PYG{n}{b}\PYG{p}{,} \PYG{n}{h}\PYG{p}{,} \PYG{n}{q\PYGZus{}idx}\PYG{p}{,} \PYG{n}{kv\PYGZus{}idx}\PYG{p}{):}
+        \PYG{c+c1}{\PYGZsh{} Top\PYGZhy{}left quadrant (x1 \PYGZhy{}\PYGZgt{} x1, standard causal)}
+        \PYG{c+c1}{\PYGZsh{} True if query and key are in the first half and key is before or at query.}
+        \PYG{n}{is\PYGZus{}in\PYGZus{}top\PYGZus{}left\PYGZus{}causal} \PYG{o}{=} \PYG{p}{(}\PYG{n}{q\PYGZus{}idx} \PYG{o}{\PYGZlt{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZlt{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZlt{}=} \PYG{n}{q\PYGZus{}idx}\PYG{p}{)}
+    
+        \PYG{c+c1}{\PYGZsh{} Bottom\PYGZhy{}right quadrant (xt \PYGZhy{}\PYGZgt{} xt, block attention)}
+        \PYG{c+c1}{\PYGZsh{} True if query and key are in the second half and belong to the same block.}
+        \PYG{n}{q\PYGZus{}block\PYGZus{}xt} \PYG{o}{=} \PYG{p}{(}\PYG{n}{q\PYGZus{}idx} \PYG{o}{\PYGZhy{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{//} \PYG{n}{block\PYGZus{}len}
+        \PYG{n}{kv\PYGZus{}block\PYGZus{}xt} \PYG{o}{=} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZhy{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{//} \PYG{n}{block\PYGZus{}len}
+        \PYG{n}{is\PYGZus{}in\PYGZus{}bottom\PYGZus{}right\PYGZus{}block} \PYG{o}{=} \PYG{p}{(}\PYG{n}{q\PYGZus{}idx} \PYG{o}{\PYGZgt{}=} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZgt{}=} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{q\PYGZus{}block\PYGZus{}xt} \PYG{o}{==} \PYG{n}{kv\PYGZus{}block\PYGZus{}xt}\PYG{p}{)}
+    
+        \PYG{c+c1}{\PYGZsh{} Bottom\PYGZhy{}left quadrant (xt \PYGZhy{}\PYGZgt{} x1, block causal past)}
+        \PYG{c+c1}{\PYGZsh{} True if query is in the second half, key is in the first half, and the queries block index is strictly greater than the keys block index.}
+        \PYG{n}{q\PYGZus{}block\PYGZus{}idx\PYGZus{}bl} \PYG{o}{=} \PYG{p}{(}\PYG{n}{q\PYGZus{}idx} \PYG{o}{\PYGZhy{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{//} \PYG{n}{block\PYGZus{}len}
+        \PYG{n}{kv\PYGZus{}block\PYGZus{}idx\PYGZus{}bl} \PYG{o}{=} \PYG{n}{kv\PYGZus{}idx} \PYG{o}{//} \PYG{n}{block\PYGZus{}len}
+        \PYG{n}{is\PYGZus{}in\PYGZus{}bottom\PYGZus{}left\PYGZus{}block\PYGZus{}causal\PYGZus{}past} \PYG{o}{=} \PYG{p}{(}\PYG{n}{q\PYGZus{}idx} \PYG{o}{\PYGZgt{}=} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{kv\PYGZus{}idx} \PYG{o}{\PYGZlt{}} \PYG{n}{half\PYGZus{}seq\PYGZus{}len}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{q\PYGZus{}block\PYGZus{}idx\PYGZus{}bl} \PYG{o}{\PYGZgt{}} \PYG{n}{kv\PYGZus{}block\PYGZus{}idx\PYGZus{}bl}\PYG{p}{)}
+    
+        \PYG{k}{return} \PYG{n}{is\PYGZus{}in\PYGZus{}top\PYGZus{}left\PYGZus{}causal} \PYG{o}{|} \PYG{n}{is\PYGZus{}in\PYGZus{}bottom\PYGZus{}right\PYGZus{}block} \PYG{o}{|} \PYG{n}{is\PYGZus{}in\PYGZus{}bottom\PYGZus{}left\PYGZus{}block\PYGZus{}causal\PYGZus{}past}
+    \PYG{k}{return} \PYG{n}{create\PYGZus{}block\PYGZus{}mask}\PYG{p}{(}\PYG{n}{mask\PYGZus{}mod}\PYG{p}{,} \PYG{n}{B}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{H}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{Q\PYGZus{}LEN}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{,} \PYG{n}{KV\PYGZus{}LEN}\PYG{o}{=}\PYG{n}{seq\PYGZus{}len}\PYG{p}{)}
+\end{Verbatim}
