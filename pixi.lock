@@ -57,13 +57,13 @@ packages:
 - pypi: ./
   name: demo-paper-survey
   version: 0.1.0
-  sha256: c37da6c1a4ee8939b9daff39a8a75a92a004f65fe59a6f8f6af8c1dcf59629f9
+  sha256: 6161a261139d015a547d8df7a7b9c20c2b74dbf802a1608b89d094495c5abe98
   requires_dist:
   - mdutils>=1.8.1,<2
   - python-docx>=1.2.0,<2
   - python-pptx>=1.0.2,<2
-  - opencv-python
-  - scipy
+  - opencv-python>=4.12.0.88,<5
+  - scipy>=1.16.3,<2
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/icu-75.1-hfee45f7_0.conda

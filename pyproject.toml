@@ -17,6 +17,7 @@ platforms = ["osx-arm64"]
 demo_paper_survey = { path = ".", editable = true }
 
 [tool.pixi.tasks]
+make-proposal-pptx = "python scripts/generate_proposal_pptx.py"
 
 [tool.pixi.dependencies]
 python = "3.13.*"
