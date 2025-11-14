@@ -1,0 +1,102 @@
+% ICCV 2025 Paper Template
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{iccv}              % To produce the CAMERA-READY version
+% \usepackage[review]{iccv}      % To produce the REVIEW version
+\usepackage[pagenumbers]{iccv} % To force page numbers, e.g. for an arXiv version
+
+\usepackage{microtype}
+\usepackage{graphicx}
+% \usepackage{subfig} % This package cause error to \begin{document}. Don't use it.
+\usepackage{booktabs} % for professional tables
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{dblfloatfix}
+
+% Import additional packages in the preamble file, before hyperref
+\usepackage{fancyhdr}
+% \usepackage{titlesec}
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{iccvblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=iccvblue]{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{15688} % *** Enter the Paper ID here
+\def\confName{ICCV}
+\def\confYear{2025}
+
+\newcommand\nonumfootnote[1]{%
+\begingroup%
+    \renewcommand\thefootnote{}\footnote{\hspace{-3.7pt}#1}%
+    \addtocounter{footnote}{-1}%
+\endgroup%
+}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{StreamDiffusion: A Pipeline-level Solution for Real-time Interactive Generation}
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{Akio Kodaira$^{1*}$ \hspace{0.02cm}
+Chenfeng Xu$^{1,*}$ \hspace{0.02cm}
+Toshiki Hazama$^{1,*}$ \hspace{0.02cm}
+Takanori Yoshimoto$^2$ \hspace{0.02cm}
+Kohei Ohno$^3$ \hspace{0.02cm}\\
+Shogo Mitsuhori$^4$ \hspace{0.02cm}
+Soichi Sugano$^5$ \hspace{0.02cm}
+Hanying Cho$^6$ \hspace{0.02cm}
+Zhijian Kiu$^7$ \hspace{0.02cm}
+Masayoshi Tomizuka$^1$ \hspace{0.02cm}
+Kurt Keutzer$^1$\\
+\\
+$^1$UC Berkeley \hspace{0.02cm}
+$^2$University of Tsukuba \hspace{0.02cm}
+$^3$International Christian University\\
+$^4$Toyo University \hspace{0.02cm}
+$^5$Tokyo Institute of Technology \hspace{0.02cm}
+$^6$Tohoku University \hspace{0.02cm}
+$^7$MIT \vspace{0.1cm}\\
+\url{https://github.com/cumulo-autumn/StreamDiffusion} \\
+\{akio.kodaira, xuchenfeng\}@berkeley.edu
+}
+
+\begin{document}
+\twocolumn[{
+\maketitle
+\begin{center}
+    \vspace{-6mm}
+	\centering
+    \small
+	\captionsetup{type=figure}
+ \includegraphics[width=\textwidth]{figure/img2img_demo_short.png}
+    \captionof{figure}{StreamDiT-4B: video generation can be streaming and real-time.}
+    \vspace{1mm}
+    \label{fig:teaser}
+\end{center}
+}]
+\maketitle
+\input{sec/0_abstract}
+\input{sec/1_intro}
+\input{sec/2_relatedwork}
+\input{sec/3_methodology}
+\input{sec/4_experiments}
+\input{sec/5_conclusion}
+\input{sec/6_acknowledgments}
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+\clearpage
+\input{sec/7_spp}
+
+\end{document}

@@ -1,0 +1,210 @@
+\begin{thebibliography}{42}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Avrahami et~al.(2022)Avrahami, Lischinski, and Fried]{Avrahami_2022_CVPR}
+Omri Avrahami, Dani Lischinski, and Ohad Fried.
+\newblock Blended diffusion for text-driven editing of natural images.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Avrahami et~al.(2023)Avrahami, Fried, and Lischinski]{avrahami2023blendedlatent}
+Omri Avrahami, Ohad Fried, and Dani Lischinski.
+\newblock Blended latent diffusion.
+\newblock \emph{ACM Trans. Graph.}, 2023.
+
+\bibitem[Betker et~al.()Betker, Goh, Jing, Brooks, Wang, Li, Ouyang, Zhuang, Lee, Guo, Manassra, Dhariwal, Chu, Jiao, and Ramesh]{BetkerImprovingIG}
+James Betker, Gabriel Goh, Li Jing, Tim Brooks, Jianfeng Wang, Linjie Li, Long Ouyang, Juntang Zhuang, Joyce Lee, Yufei Guo, Wesam Manassra, Prafulla Dhariwal, Casey Chu, Yunxin Jiao, and Aditya Ramesh.
+\newblock Improving image generation with better captions.
+
+\bibitem[Blattmann et~al.(2023{\natexlab{a}})Blattmann, Dockhorn, Kulal, Mendelevitch, Kilian, Lorenz, Levi, English, Voleti, Letts, et~al.]{blattmann2023stable}
+Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, et~al.
+\newblock Stable video diffusion: Scaling latent video diffusion models to large datasets.
+\newblock \emph{arXiv preprint arXiv:2311.15127}, 2023{\natexlab{a}}.
+
+\bibitem[Blattmann et~al.(2023{\natexlab{b}})Blattmann, Rombach, Ling, Dockhorn, Kim, Fidler, and Kreis]{blattmann2023align}
+Andreas Blattmann, Robin Rombach, Huan Ling, Tim Dockhorn, Seung~Wook Kim, Sanja Fidler, and Karsten Kreis.
+\newblock Align your latents: High-resolution video synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 22563--22575, 2023{\natexlab{b}}.
+
+\bibitem[Brooks et~al.(2022)Brooks, Holynski, and Efros]{brooks2022instructpix2pix}
+Tim Brooks, Aleksander Holynski, and Alexei~A Efros.
+\newblock Instructpix2pix: Learning to follow image editing instructions.
+\newblock \emph{arXiv preprint arXiv:2211.09800}, 2022.
+
+\bibitem[Chi et~al.(2023)Chi, Feng, Du, Xu, Cousineau, Burchfiel, and Song]{chi2023diffusion}
+Cheng Chi, Siyuan Feng, Yilun Du, Zhenjia Xu, Eric Cousineau, Benjamin Burchfiel, and Shuran Song.
+\newblock Diffusion policy: Visuomotor policy learning via action diffusion.
+\newblock \emph{arXiv preprint arXiv:2303.04137}, 2023.
+
+\bibitem[Crowson et~al.(2022)Crowson, Biderman, Kornis, Stander, Hallahan, Castricato, and Raff]{crowson2022vqgan}
+Katherine Crowson, Stella Biderman, Daniel Kornis, Dashiell Stander, Eric Hallahan, Louis Castricato, and Edward Raff.
+\newblock Vqgan-clip: Open domain image generation and editing with natural language guidance.
+\newblock In \emph{European Conference on Computer Vision}, pages 88--105. Springer, 2022.
+
+\bibitem[Dhariwal and Nichol(2021)]{dhariwal2021diffusion}
+Prafulla Dhariwal and Alexander Nichol.
+\newblock Diffusion models beat gans on image synthesis.
+\newblock \emph{Advances in neural information processing systems}, 34:\penalty0 8780--8794, 2021.
+
+\bibitem[Du et~al.(2020{\natexlab{a}})Du, Li, and Mordatch]{NEURIPS2020_49856ed4}
+Yilun Du, Shuang Li, and Igor Mordatch.
+\newblock Compositional visual generation with energy based models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, pages 6637--6647. Curran Associates, Inc., 2020{\natexlab{a}}.
+
+\bibitem[Du et~al.(2020{\natexlab{b}})Du, Li, and Mordatch]{du2020compositional}
+Yilun Du, Shuang Li, and Igor Mordatch.
+\newblock Compositional visual generation with energy based models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 33:\penalty0 6637--6647, 2020{\natexlab{b}}.
+
+\bibitem[Ho and Salimans(2022)]{ho2022classifier}
+Jonathan Ho and Tim Salimans.
+\newblock Classifier-free diffusion guidance.
+\newblock \emph{arXiv preprint arXiv:2207.12598}, 2022.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock \emph{Advances in neural information processing systems}, 33:\penalty0 6840--6851, 2020.
+
+\bibitem[Huang et~al.(2023)Huang, Gong, Liu, Chen, and Liu]{huang2023tfmq}
+Yushi Huang, Ruihao Gong, Jing Liu, Tianlong Chen, and Xianglong Liu.
+\newblock Tfmq-dm: Temporal feature maintenance quantization for diffusion models.
+\newblock \emph{arXiv preprint arXiv:2311.16503}, 2023.
+
+\bibitem[Huggingface(2024)]{diffusers}
+Huggingface.
+\newblock https://huggingface.co/docs/diffusers/, 2024.
+
+\bibitem[Khani et~al.(2024)Khani, Asgari, Sanghi, Amiri, and Hamarneh]{khani2024slime}
+Aliasghar Khani, Saeid Asgari, Aditya Sanghi, Ali~Mahdavi Amiri, and Ghassan Hamarneh.
+\newblock Slime: Segment like me.
+\newblock In \emph{The Twelfth International Conference on Learning Representations}, 2024.
+
+\bibitem[Kingma and Welling(2022)]{kingma2022autoencoding}
+Diederik~P Kingma and Max Welling.
+\newblock Auto-encoding variational bayes, 2022.
+
+\bibitem[Li et~al.(2023{\natexlab{a}})Li, Liu, Lian, Yang, Dong, Kang, Zhang, and Keutzer]{li2023qdiffusion}
+Xiuyu Li, Yijiang Liu, Long Lian, Huanrui Yang, Zhen Dong, Daniel Kang, Shanghang Zhang, and Kurt Keutzer.
+\newblock Q-diffusion: Quantizing diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 17535--17545, 2023{\natexlab{a}}.
+
+\bibitem[Li et~al.(2023{\natexlab{b}})Li, Zhou, Zhang, Zhang, Wang, and Xie]{li2023grounded}
+Ziyi Li, Qinye Zhou, Xiaoyun Zhang, Ya Zhang, Yanfeng Wang, and Weidi Xie.
+\newblock Open-vocabulary object segmentation with diffusion models.
+\newblock 2023{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2022)Liu, Gong, and Liu]{liu2022flow}
+Xingchao Liu, Chengyue Gong, and Qiang Liu.
+\newblock Flow straight and fast: Learning to generate and transfer data with rectified flow.
+\newblock \emph{arXiv preprint arXiv:2209.03003}, 2022.
+
+\bibitem[Liu et~al.(2023)Liu, Zhang, Ma, Peng, and Liu]{liu2023insta}
+Xingchao Liu, Xiwen Zhang, Jianzhu Ma, Jian Peng, and Qiang Liu.
+\newblock Instaflow: One step is enough for high-quality diffusion-based text-to-image generation.
+\newblock \emph{arXiv preprint arXiv:2309.06380}, 2023.
+
+\bibitem[Lu et~al.(2022{\natexlab{a}})Lu, Zhou, Bao, Chen, Li, and Zhu]{lu2022dpm}
+Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu.
+\newblock Dpm-solver: A fast ode solver for diffusion probabilistic model sampling in around 10 steps.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:\penalty0 5775--5787, 2022{\natexlab{a}}.
+
+\bibitem[Lu et~al.(2022{\natexlab{b}})Lu, Zhou, Bao, Chen, Li, and Zhu]{lu2022dpm+}
+Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu.
+\newblock Dpm-solver++: Fast solver for guided sampling of diffusion probabilistic models.
+\newblock \emph{arXiv preprint arXiv:2211.01095}, 2022{\natexlab{b}}.
+
+\bibitem[Luo et~al.(2023{\natexlab{a}})Luo, Tan, Huang, Li, and Zhao]{luo2023latent}
+Simian Luo, Yiqin Tan, Longbo Huang, Jian Li, and Hang Zhao.
+\newblock Latent consistency models: Synthesizing high-resolution images with few-step inference, 2023{\natexlab{a}}.
+
+\bibitem[Luo et~al.(2023{\natexlab{b}})Luo, Tan, Patil, Gu, von Platen, Passos, Huang, Li, and Zhao]{luo2023lcm}
+Simian Luo, Yiqin Tan, Suraj Patil, Daniel Gu, Patrick von Platen, Apolin{\'a}rio Passos, Longbo Huang, Jian Li, and Hang Zhao.
+\newblock Lcm-lora: A universal stable-diffusion acceleration module.
+\newblock \emph{arXiv preprint arXiv:2311.05556}, 2023{\natexlab{b}}.
+
+\bibitem[Luo et~al.(2023{\natexlab{c}})Luo, Tan, Patil, Gu, von Platen, Passos, Huang, Li, and Zhao]{luo2023lcmlora}
+Simian Luo, Yiqin Tan, Suraj Patil, Daniel Gu, Patrick von Platen, Apolinário Passos, Longbo Huang, Jian Li, and Hang Zhao.
+\newblock Lcm-lora: A universal stable-diffusion acceleration module, 2023{\natexlab{c}}.
+
+\bibitem[Meng et~al.(2022)Meng, He, Song, Song, Wu, Zhu, and Ermon]{meng2022sdedit}
+Chenlin Meng, Yutong He, Yang Song, Jiaming Song, Jiajun Wu, Jun-Yan Zhu, and Stefano Ermon.
+\newblock {SDE}dit: Guided image synthesis and editing with stochastic differential equations.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[OpenAI(2024)]{sora}
+OpenAI.
+\newblock https://openai.com/sora, 2024.
+
+\bibitem[Peebles and Xie(2022)]{Peebles2022DiT}
+William Peebles and Saining Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock \emph{arXiv preprint arXiv:2212.09748}, 2022.
+
+\bibitem[Ramesh et~al.(2022)Ramesh, Dhariwal, Nichol, Chu, and Chen]{ramesh2022hierarchical}
+Aditya Ramesh, Prafulla Dhariwal, Alex Nichol, Casey Chu, and Mark Chen.
+\newblock Hierarchical text-conditional image generation with clip latents.
+\newblock \emph{arXiv preprint arXiv:2204.06125}, 1\penalty0 (2):\penalty0 3, 2022.
+
+\bibitem[Rombach et~al.(2021)Rombach, Blattmann, Lorenz, Esser, and Ommer]{rombach2021highresolution}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer.
+\newblock High-resolution image synthesis with latent diffusion models, 2021.
+
+\bibitem[Rombach et~al.(2022)Rombach, Blattmann, Lorenz, Esser, and Ommer]{rombach2022high}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj{\"o}rn Ommer.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 10684--10695, 2022.
+
+\bibitem[Ruiz et~al.(2022)Ruiz, Li, Jampani, Pritch, Rubinstein, and Aberman]{ruiz2022dreambooth}
+Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman.
+\newblock Dreambooth: Fine tuning text-to-image diffusion models for subject-driven generation.
+\newblock 2022.
+
+\bibitem[Saharia et~al.(2022)Saharia, Chan, Saxena, Li, Whang, Denton, Ghasemipour, Ayan, Mahdavi, Lopes, Salimans, Ho†, Fleet, and Norouzi]{Saharia2022}
+Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily Denton, Seyed Kamyar~Seyed Ghasemipour, Burcu~Karagol Ayan, S.~Sara Mahdavi, Rapha~Gontijo Lopes, Tim Salimans, Jonathan Ho†, David Fleet, and Mohammad Norouzi.
+\newblock Imagen: unprecedented photorealism × deep level of language understanding.
+\newblock 2022.
+
+\bibitem[Salimans and Ho(2022)]{salimans2022progressive}
+Tim Salimans and Jonathan Ho.
+\newblock Progressive distillation for fast sampling of diffusion models.
+\newblock \emph{arXiv preprint arXiv:2202.00512}, 2022.
+
+\bibitem[Sauer et~al.(2023)Sauer, Lorenz, Blattmann, and Rombach]{sauer2023adversarial}
+Axel Sauer, Dominik Lorenz, Andreas Blattmann, and Robin Rombach.
+\newblock Adversarial diffusion distillation.
+\newblock \emph{arXiv preprint arXiv:2311.17042}, 2023.
+
+\bibitem[Shih et~al.(2024)Shih, Belkhale, Ermon, Sadigh, and Anari]{shih2024parallel}
+Andy Shih, Suneel Belkhale, Stefano Ermon, Dorsa Sadigh, and Nima Anari.
+\newblock Parallel sampling of diffusion models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Song et~al.(2021)Song, Meng, and Ermon]{song2021denoising}
+Jiaming Song, Chenlin Meng, and Stefano Ermon.
+\newblock Denoising diffusion implicit models.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Song et~al.(2020)Song, Sohl-Dickstein, Kingma, Kumar, Ermon, and Poole]{song2020score}
+Yang Song, Jascha Sohl-Dickstein, Diederik~P Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock \emph{arXiv preprint arXiv:2011.13456}, 2020.
+
+\bibitem[Song et~al.(2023)Song, Dhariwal, Chen, and Sutskever]{song2023consistency}
+Yang Song, Prafulla Dhariwal, Mark Chen, and Ilya Sutskever.
+\newblock Consistency models.
+\newblock \emph{arXiv preprint arXiv:2303.01469}, 2023.
+
+\bibitem[Xu et~al.(2023)Xu, Ling, Fidler, and Litany]{xu20233difftection}
+Chenfeng Xu, Huan Ling, Sanja Fidler, and Or Litany.
+\newblock 3difftection: 3d object detection with geometry-aware diffusion features, 2023.
+
+\bibitem[Yin et~al.(2023)Yin, Gharbi, Zhang, Shechtman, Durand, Freeman, and Park]{yin2023onestep}
+Tianwei Yin, Micha{\"e}l Gharbi, Richard Zhang, Eli Shechtman, Frédo Durand, William~T. Freeman, and Taesung Park.
+\newblock One-step diffusion with distribution matching distillation.
+\newblock \emph{arXiv}, 2023.
+
+\end{thebibliography}

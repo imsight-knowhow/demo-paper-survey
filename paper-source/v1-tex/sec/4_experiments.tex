@@ -1,0 +1,131 @@
+\section{Experiments}
+\label{sec:experiments}
+
+
+
+
+We implement StreamDiffusion pipeline upon LCM, LCM-LoRA \cite{luo2023lcm, luo2023lcmlora} and SD-turbo \cite{sauer2023adversarial}. As a model accelerator, we use TensorRT and for the lightweight efficient VAE, we use TAESD \cite{kingma2022autoencoding}. Our pipeline is compatible with the customer-level GPU. We test our pipeline on NVIDIA RTX4090 GPU, Intel Core i9-13900K CPU, Ubuntu 22.04.3 LTS, and NVIDIA RTX3060 GPU, Intel Core i7-12700K, Windows 11 for image generation. We note that we evaluate the throughput mainly via the average inference time per image through processing 100 images.
+
+\subsection{Quantitative Evaluation}
+We compare our method with the AutoPipelineForImage2Image, which is a pipeline developed by Huggingface diffusers \footnote{\url{https://github.com/huggingface/diffusers}}. The average inference time comparison is presented in Table. \ref{tb:pipeline_comparison}. Our pipeline demonstrates a substantial speed increase. When we use TensorRT, StreamDiffusion achieves a minimum speed-up of 13.0 times when running the 10 denoising steps, and reaching up to 59.6 times in scenarios involving a single denoising step. Even though without TensorRT, StreamDiffusion achieves a 29.7 times speed up compared to AutoPipeline when using one step denoising, and an 8.3 times speedup at 10 step denoising.
+
+
+\begin{table*}[!htpb]
+\centering
+\caption{Comparison of average inference time (ms) at different denoising steps with speedup factors. The first column denotes the denoising steps and the AutoPipeline is from Diffusers \cite{diffusers}. }
+\label{tb:pipeline_comparison}
+\footnotesize % Reduce font size to make the table fit within the page margins
+\begin{tabular}{c|c|c|c}
+\toprule
+\textbf{Step} & \textbf{StreamDiffusion} & \textbf{StreamDiffusion w/o TRT} & \textbf{AutoPipeline Img2Img} \\
+\midrule
+1 & 10.65 (59.6x) & 21.34 (29.7x) & 634.40 (1x) \\
+2 & 16.74 (39.3x) & 30.61 (21.3x) & 652.66 (1x) \\
+4 & 26.93 (25.8x) & 48.15 (14.4x) & 695.20 (1x) \\
+10 & 62.00 (13.0x) & 96.94 (8.3x) & 803.23 (1x) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{\textbf{Efficiency comparison regarding Stream Batch.}}
+The efficiency comparison between Stream Batch and the original sequential U-Net loop is shown in Fig. \ref{fig:infe_comp_withoutTRT}.
+When implementing a denoising batch strategy, we observe a significant improvement in processing time. It achieves a reduction by half when compared to a conventional U-Net loop at sequential denoising steps. Even though applying TensorRT, the accelerator tool for neural modules, our proposed Stream Batch still boosts the efficiency of the original sequential diffusion pipeline by a large margin at different denoising steps.
+
+
+
+\paragraph{\textbf{Efficiency comparison regarding R-CFG.}}
+Table. \ref{tb:cfg_comparision} presents a comparison of the inference times for StreamDiffusion pipelines with R-CFG and conventional CFG. The additional computations required to apply Self-Negative R-CFG are merely lightweight vector operations, resulting in negligible changes in inference time compared to when Self-Negative is not used. When employing Onetime-Negative R-CFG, additional UNet computations are necessary for the first step of the denoising process. Therefore, One-time-negative R-CFG and conventional CFG have almost identical inference times for a single denoising step case. However, as the number of denoising steps increases, the difference in inference time from conventional CFG to both Self-Negative and Onetime-Negative R-CFG becomes more pronounced. At denoising step 5, a speed improvement of 2.05x is observed with Self-Negative R-CFG and 1.79x with Onetime-Negative R-CFG, compared to conventional CFG.
+
+\begin{table*}[!t]
+\centering
+\caption{Comparison of average inference time (ms) at different denoising steps among different CFG methods}
+\label{tb:cfg_comparision}
+\begin{tabular}{c|c|c|c}
+\toprule
+\textbf{Step} & \textbf{Self-Negative R-CFG} & \textbf{Onetime-Negative R-CFG} & \textbf{CFG} \\
+\midrule
+1 & 11.04 (1.52x) & 16.55 (1.01x) & 16.74 (1x) \\
+2 & 16.61 (1.64x) & 20.64 (1.32x) & 27.18 (1x) \\
+3 & 20.64 (1.74x) & 27.25 (1.32x) & 35.91 (1x) \\
+4 & 26.19 (1.90x) & 31.65 (1.57x) & 49.71 (1x) \\
+5 & 31.47 (2.05x) & 36.04 (1.79x) & 64.64 (1x) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\subsection{Energy Consumption}
+
+We then conduct a comprehensive evaluation of the energy consumption associated with our proposed stochastic similarity filter (SSF), as depicted in Figure. \ref{fig:gpu_usage_3090} and Figure. \ref{fig:gpu_usage_4090}. These figures provide the GPU utilization patterns when SSF (Threshold $\eta$ set at 0.98) is applied to input videos containing scenes with periodic static characteristics. The comparative analysis reveals that the incorporation of SSF significantly mitigates GPU usage in instances where the input images are predominantly static and demonstrate a high degree of similarity.
+
+Figure. \ref{fig:gpu_usage_3090} delineates the results derived from a meticulously executed two-denoise-step img2img experiment. This experiment was conducted on a 20-frame video sequence, employing NVIDIA RTX3060 graphics processing units with or without the integration of SSF. The experiment results indicate a substantial decrease in average power consumption from \textbf{85.96w} to \textbf{35.91w} on one RTX3060 GPU. Using the same static scene input video with one NVIDIA RTX4090GPU, the power consumption was reduced from  \textbf{238.68w} to \textbf{119.77w}.
+
+Furthermore, Figure. \ref{fig:gpu_usage_4090} expounds on the findings from a similar two-denoise-step img2img experiment using one RTX4090GPU. This time the evaluation of energy consumption is performed on a 1000-frame video featuring dynamic scenes. Remarkably, even under drastically dynamic conditions, the SSF efficiently extracted several frames exhibiting similarity from the dynamic sequence. This process results in a noteworthy reduction in average power consumption, from \textbf{236.13w} to \textbf{199.38w}. These findings underscore the efficacy of the Stochastic Similarity Filter in enhancing energy efficiency, particularly in scenarios involving static or minimally varying visual content.
+
+
+
+
+%-------------------------------------------------------------------------
+
+
+
+\subsection{Ablation study}
+
+\begin{figure}[!htp]
+  \centering
+   \includegraphics[width=1.0\linewidth]{figure/ablation.png}
+    \caption{Ablation study on different components. }
+\label{fig:diff-compo}
+\end{figure}
+
+In our ablation study, as summarized in Fig. \ref{fig:diff-compo}, we evaluate the average inference time of our proposed method under various configurations to understand the contribution of each component. Our proposed StreamDiffusion achieves an average inference time of 10.98/9.42 ms and 26.93/26.30 ms for denoising steps 1 and 4 on image-to-image/text-to-image generation, respectively. When the R-CFG is not used, we observe this results in the second largest efficiency drop. This demonstrates that R-CFG is one of the most critical components in our pipeline. When the Stream Batch processing is removed ('w/o stream batch'), we observe a large time consumption increase, especially at 4 denoising steps. We also evaluate the impact on the inference time of our pipeline regarding SSF. We observe that SSF plays a significant role in enabling energy saving and does not introduce extra time cost.
+
+
+Besides, the absence of TensorRT ('w/o TRT') leads to a large increase in time cost. The removal of pre-computation also results in increased time cost but not much. We attribute the reason to the limited number of key-value computations in Stable Diffusion. Besides, the exclusion of input-output queue ('w/o IO queue') also demonstrates an impact on average inference time, which mainly aims to optimize the parallelization issue resulting from pre- and post-processing. 
+In the AutoPipelineImage2Image's adding noise function, the precision of tensors is converted from fp32 to fp16 for each request, leading to a decrease in speed. In contrast, the StreamDiffusion pipeline standardizes the precision of variables and computational devices beforehand. It does not perform tensor precision conversion or computation device transfers during inference. Consequently, even without any optimization ('w/o any optimization'), our pipeline significantly outperforms the AutoPipelineImage2Image in terms of speed.
+
+\subsection{Quantitative Evaluation for the Image Quality.}
+We conduct a quantitative evaluation on the image quality. Specifically, we first evaluate the FID and CLIP scores on the text-to-image generation. We use the same dataset as \cite{brooks2022instructpix2pix} for the evaluation. We use LCM as our main baseline for the comparison. Note that our method is never trained; our method still improves LCM by a large margin in terms of the FID (29.69 vs. 26.79) and maintains a similar CLIP score (24.95 vs. 24.99). This demonstrates the effectiveness of our proposed method.
+
+\paragraph{\textbf{User study.}}
+We also conduct a user study to validate the visual quality of different components of our StreamDiffusion.
+The results are shown in the Table. \ref{tab:combined_user_study}. Our Stream Batch with future-frame attention significantly enhances time consistency compared to its absence. Additionally, our SSF method addresses the crucial yet rarely explored issue of energy efficiency. While SSF is simple, it is far from trivial: a common approach might apply a hard threshold on similarity to regulate streaming flow. However, as noted in the main text, we introduce a novel approach—using probability sampling to achieve superior streaming quality. As Table \ref{tab:combined_user_study} illustrates, this approach is preferred by more users over the hard-threshold method for visual quality. Moreover, compared to the vanilla CFG method, both our self-Negative R-CFG and one-time R-CFG are more preferred by the users, demonstrating our method not only improves efficiency but also visual quality.
+
+\begin{table}[h]
+\centering
+% \vspace{-0.4cm}
+\resizebox{0.48\textwidth}{!}{
+\begin{tabular}{c|cc}
+\toprule
+\textbf{\# Users} & \textbf{Without Future-Frame (\%)} & \textbf{With Future-Frame (\%)} \\
+\midrule
+486 & 9.67 & 90.33 \\
+\midrule
+\textbf{\# Users} & \textbf{Without SSF (\%)} & \textbf{With SSF (\%)} \\
+\midrule
+144 & 48.61 & 51.39 \\
+\midrule
+\textbf{\# Users} & \textbf{Hard Threshold (\%)} & \textbf{SSF (\%)} \\
+\midrule
+45 & 24.44 & 75.56 \\
+\midrule
+\textbf{\# Users} & \textbf{With / Without CFG (\%)} & \textbf{Self-Neg R-CFG / One-Time R-CFG (\%)} \\
+\midrule
+257 & 22 / 20 & 35 / 23 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-0.2cm}
+\caption{User study results: Future-frame attention consistency (486 users), SSF quality imperceptibility (144 users), streaming quality between hard threshold filter and SSF (45 users), comparison of with/without CFG and self-negative/one-time R-CFG (257 users).}
+\label{tab:combined_user_study}
+\end{table}
+
+
+This pipeline enables image generation with very low throughput from input images received in real-time from cameras or screen capture devices. At the same time, it is capable of producing high-quality images that effectively align to the specified prompt conditions. These capabilities demonstrate the applicability of our pipeline in various real-time applications, such as real-time game graphic rendering, generative camera effect filters, real-time face conversion, and AI-assisted drawing.
+
+The alignment of generated images to prompt conditioning using Residual Classifier-Free Guidance (R-CFG) is depicted in Fig. \ref{fig:cfg_conparision}. The generated images, without using any form of CFG, exhibit weak alignment to the prompt, particularly in aspects like color changes or the addition of non-existent elements, which are not effectively implemented. In contrast, the use of CFG or R-CFG enhances the ability to modify original images, such as changing hair color, adding body patterns, and even incorporating objects like glasses. Notably, the use of R-CFG results in a stronger influence of the prompt compared to standard CFG. R-CFG, although limited to image-to-image applications, can compute the vector for negative conditioning while continuously referencing the latent value of the input image and the initially sampled noise. This approach yields more consistent directions for the negative conditioning vector compared to the standard CFG, which uses UNet at every denoising step to calculate the negative conditioning vector. Consequently, this leads to more pronounced changes from the original image. However, there is a trade-off in terms of the stability of the generated results. While Self-Negative R-CFG enhances the prompt's effectiveness, it also has the drawback of increasing the contrast of the generated images. To address this, adjusting the $delta$ in Eq. \ref{eq:next_step_cfg} can modulate the magnitude of the virtual residual noise vector, thereby mitigating the rise in contrast. 
+Additionally, using Onetime-Negative R-CFG with appropriately chosen negative prompts can mitigate contrast increases while improving prompt adherence, as observed in Fig. \ref{fig:cfg_conparision}. This approach allows the generated images to blend more naturally with the original image.
+
+
+Besides, Fig. \ref{fig:time_vis} in appendix shows the image-to-image generation results using StreamBatch Cross-frame attention, with 4 denoising steps. As evident from the figure, compared to the results of StreamDiffusion without Cross-frame attention, the method incorporating information from future and past frames exhibits increased temporal consistency.
+

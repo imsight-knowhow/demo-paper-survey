@@ -1,0 +1,153 @@
+\section{StreamDiffusion}
+\label{sec:intro}
+
+StreamDiffusion is a new diffusion pipeline aiming for high throughput. It comprises three key components: Stream Batch strategy, Residual Classifier-Free Guidance (R-CFG), and Stochastic Similarity Filter. Besides, we also incorporate other acceleration methods like a novel input-output queue designed by us, the pre-computation procedure, the tiny-autoencoder, and model acceleration tools such as TensorRT. We elaborate on the details below. 
+
+
+
+
+\begin{figure*}[!t]
+  \centering
+   \includegraphics[width=.95\linewidth]{figure/rcfg_concept.png}
+\caption{Virtual residual noise vectors: The orange vectors depict the virtual residual noise that starts from PF ODE trajectory and points to the original input latent $x_0$}
+\label{fig:ICFG}
+\end{figure*}
+
+
+
+
+
+%-------------------------------------------------------------------------
+\subsection{Stream Batch: Batching the Denoise Step}
+In diffusion models, denoising steps are performed sequentially, resulting in a proportional increase in the processing time of U-Net relative to the number of steps. However, to generate high-fidelity images, it is necessary to increase the number of steps. To resolve this problem in interactive diffusion, we propose a method called Stream Batch.
+
+The Stream Batch technique restructures sequential denoising operations into batched processes, wherein each batch corresponds to a predetermined number of denoising steps, as depicted in Fig. \ref{fig:batch_concept}. The size of each batch is determined by the number of these denoising steps. This approach allows for each batch element to advance one step further in the denoising sequence via a single pass through U-Net. By iteratively applying this method, it is possible to effectively transform input images encoded at timestep \textit{t} into their corresponding image-to-image results at timestep \textit{t+n}, thereby streamlining the denoising procedure.
+
+Stream Batch significantly reduces the need for multiple U-Net inferences. The processing time does not escalate linearly with the number of steps. This technique effectively shifts the trade-off from balancing processing time and generation quality to balancing VRAM capacity and generation quality. With adequate VRAM scaling, this method enables the production of high-quality images within the span of a single U-Net processing cycle, effectively overcoming the constraints imposed by increasing denoising steps.
+
+% \textit{Note: Discussion with naive Waiting and Batching strategy.}
+Waiting and Batching can also increase the throughput of the diffusion pipeline. However, with naive Waiting and Batching (WB), denoising cannot begin immediately on the first input frame, leading to higher latency compared to Stream Batch. We mainly aim for smooth streaming applications. Yet achieving a smooth frame rate with WB requires additional engineering, such as precise inference speed estimation and input-output frame synchronization, and minor timing errors must be carefully managed. In contrast, Stream Batch automatically ensures a consistent interval between input and output frames, providing the advantage of lower latency while dynamically reaching the optimal throughput.
+
+
+\subsection{Improve Time Consistency by Stream Batch}
+Maintaining temporal consistency in video generation is challenging. Many approaches ensure frame coherence by referencing past frames, often through cross-frame attention. However, our Stream Batch method uniquely enables temporal consistency using information from future frames. As shown in Fig. \ref{fig:batch_concept}, Stream Batch allows simultaneous denoising of multiple frames, passing information from future frames to the current frame. This supports real-time image translation that adapts to sudden changes in input while preserving consistency.
+In Stream Batch with \( n \) denoising steps, keys and values for each frame at each time step form the following batches:
+\[
+K_{\text{Batch}} = \left[ K_{t+i,0}, \dots, K_{t,i}, \dots, K_{t-(n-1-i), n-1} \right]
+\]
+\[
+V_{\text{Batch}} = \left[ V_{t+i,0}, \dots, V_{t,i}, \dots, V_{t-(n-1-i), n-1} \right]
+\]
+
+These key and value batches incorporate information across different time frames and denoising steps. For example, if the frame at time step \( t \) has reached the \( i \)-th denoising step, the batch includes \( i \) future denoising steps for different frames and \( n-1-i \) past frames. In Stream Batch Cross-frame Attention, rather than using the typical \( K_{t,i} \) and \( V_{t,i} \), we employ \( K_{\text{Batch}} \) and \( V_{\text{Batch}} \), which integrate past and future frame information for the attention computation:
+
+\[
+\text{Attn}(Q_{t,i}, K_{\text{Batch}}, V_{\text{Batch}}) = \text{Softmax}\left(\frac{Q_{t,i} \cdot K_{\text{Batch}}^{T}}{\sqrt{d}}\right) V_{\text{Batch}}
+\]
+
+This approach enables the generation process to account for information from both past and future frames, as well as across different denoising stages, thus enhancing temporal consistency.
+
+
+\subsection{Residual Classifier-Free Guidance}
+
+
+Firstly, SDEdit based method \cite{meng2022sdedit} adds perturbation to the input image $x_0$ and transfers it to the noise distribution $x_{\tau_0}$ as follows,
+
+\begin{equation}
+x_{\tau_0} = \sqrt{\alpha_{\tau_0}}x_0 + \sqrt{\beta_{\tau_0}}\epsilon_0,
+\label{eq:adding_noise}
+\end{equation}
+where $\alpha_{\tau_0}$ and $\beta_{\tau_0}$ are values determined by a noise scheduler and $\epsilon_0$ is a sampled noise from a Gaussian $\mathcal{N}(0, I)$. 
+When using consistency models for conditional image editing, $x_{\tau_0}$ can be considered as a point on the PF ODE trajectory, which leads to the conditioning manifold. To intensify the conditioning by Classifier-Free Guidance (CFG)\cite{NEURIPS2020_49856ed4}, it is imperative to compute a noise for a negative condition PF ODE trajectory, which is used in vector arithmetic shift for the guidance (Eq.~\ref{eq:cfg}). 
+
+\begin{equation}
+\epsilon_{\tau_{i}, \mathrm{cfg}} = \epsilon_{\tau_{i}, \bar{c}} + \gamma(\epsilon_{\tau_{i}, c} - \epsilon_{\tau_{i}, \bar{c}}),
+\label{eq:cfg}
+\end{equation}
+This requirement introduces additional computational overhead at each denoising step.
+To reduce this computational overhead, R-CFG utilizes the fact that the original input image $x_0$ is referable at any stage of denoising steps.
+
+For any latent $x_{\tau_i}$ at the denoising step $\tau_i$, we can assume the existence of the virtual negative condition $\bar{c}_{\tau_{i}}^\prime$, that satisfies the self-consistency described as Eq.~\ref{eq:self_consistency}
+This implies that $x_{\tau_i}$ is on the PF ODE trajectory going back to the input image $x_0$.
+
+\begin{equation}
+x_0 \approx \hat{x}_{0,{\tau_{i}},\bar{c}_{\tau_{i}}^\prime} = f_\theta(x_{{\tau_{i}}}, \tau_{i}, \bar{c}_{\tau_{i}}^\prime)
+\label{eq:self_consistency}
+\end{equation}
+
+Following the LCM model parameterization \cite{luo2023lcm} and our approximation for the inference time skip connections (\(c_\mathrm{skip}(\tau)=0\), \(c_\mathrm{out}(\tau)=1\) at \(\tau\neq0\)), the self-consistency equation (Eq.~\ref{eq:self_consistency}) can be expressed as follows,
+
+
+\begin{equation}
+x_0 \approx \frac{x_{{\tau_{i}}} - \sqrt{\beta_{\tau_{i}}}\epsilon_{{\tau_{i}},\bar{c}_{\tau_{i}}^\prime}}{\sqrt{\alpha_{\tau_{i}}}}
+\label{eq:virtual_x_0_predict}
+\end{equation}
+
+Given the initial value $x_0$, and the subsequent values of $x_{{\tau_{i}}}$ obtained sequentially through the iterative denoising, the virtual noise vector $\epsilon_{{\tau_{i}},\bar{c}^\prime}$ in the direction toward the input image can be analytically determined by employing these values with the Eq. \ref{eq:virtual_x_0_predict}:
+
+
+\begin{equation}
+\epsilon_{{\tau_{i}},\bar{c}^\prime} = \frac{x_{{\tau_{i}}} - \sqrt{\alpha_{\tau_{i}}}x_0}{\sqrt{\beta_{\tau_{i}}}}
+\label{eq:virtual_residual_noise_from_x0}
+\end{equation}
+
+With the virtual noise $\epsilon_{{\tau_{i}},\bar{c}^\prime}$ obtained from Eq.~\ref{eq:virtual_residual_noise_from_x0}, we formulate R-CFG by:
+\begin{equation}
+\epsilon_{\tau_{i}, \mathrm{cfg}} = \delta\epsilon_{\tau_{i}, \bar{c}^\prime} + \gamma(\epsilon_{\tau_{i}, c} - \delta\epsilon_{\tau_{i}, \bar{c}^\prime})
+\label{eq:next_step_cfg}
+\end{equation}
+where $\delta$ is a magnitude moderation coefficient for the virtual residual noise that softens the effect and the approximation error of the virtual residual noise.
+
+
+R-CFG that uses the original input image latent $x_0$ as the residual term can effectively generate results that diverge from the original input image according to the magnitude of the guidance scale $\gamma$, thereby enhancing the effect of conditioning without the need for additional U-Net computations. We call this method Self-Negative R-CFG.
+
+Not only to deviate from the original input image $x_0$, but also to diverge from any negative condition, we can find the desired reference point $\hat{x}_{0,{\tau_{0}},\bar{c}}$ that reflects the negative condition $\bar{c}$ using the same self-consistency formulation:
+
+\begin{equation}
+\hat{x}_{0,{\tau_{0}},\bar{c}} = \frac{x_{\tau_{0}} - \sqrt{\beta_{\tau_{0}}}\epsilon_{{\tau_{0}},\bar{c}}}{\sqrt{\alpha_{\tau_{0}}}}
+\label{eq:negative_conditioned_x_0_predict}
+\end{equation}
+
+We can obtain $\hat{x}_{0,{\tau_{0}},\bar{c}}$ by computing the actual negative conditioned noise $\epsilon_{\tau_{0},\bar{c}}$ using U-Net only one time for the first denoising step.
+
+
+In Eq. \ref{eq:virtual_residual_noise_from_x0}, instead of $x_0$, using $\hat{x}_{0,{\tau_{0}},\bar{c}}$, we can obtain the virtual negative conditioned noise $\epsilon_{{\tau_{i+1}},\bar{c}^\prime}$ that can effectively diverge the generation results from the controllable negative conditioning $\bar{c}$. We name this method Onetime-Negative R-CFG.
+In contrast to the conventional CFG, which requires $2n$ computations of U-Net, the Self-Negative RCFG and Onetime-Negative RCFG necessitate only $n$ and $n+1$ computations of U-Net, respectively, where $n$ is the number of the denoising steps.
+
+\subsection{Stochastic Similarity Filter}
+When images remain unchanged or show minimal changes, particularly in scenarios without active user interaction or static environment, nearly identical input images are often repeatedly fed into the VAE and U-Net. This leads to the generation of identical or nearly identical images and unnecessary consumption of GPU resources. In contexts involving continuous inputs, such instances of unmodified input images can occasionally occur. To tackle this issue and minimize unnecessary computational load, we propose a strategy termed \textit{stochastic similarity filter (SSF)}, as shown in Fig. \ref{fig:overview}.
+
+We calculate the cosine similarity between the current input image $I_t$ and the past reference frame image $I_\mathrm{ref}$.
+
+\begin{equation}
+S_{C}(I_t, I_\mathrm{ref}) = \frac{I_t \cdot I_\mathrm{ref}}{\|I_t\|\|I_\mathrm{ref}\|}
+\label{eq:cos-simg}
+\end{equation}
+
+Based on this cosine similarity, we calculate the probability of skipping the subsequent VAE and U-Net processes. It is given by
+
+\begin{equation}
+\mathbf{P}(\mathrm{skip} | I_t, I_\mathrm{ref}) = \mathbf{max}\left\{0,\: \frac{S_{C}(I_t, I_\mathrm{ref}) - \eta}{1-\eta}\right\},
+\label{eq:skip_prob}
+\end{equation}
+where $\eta$ is the similarity threshold. This probability decides whether subsequent processes like VAE Encoding, U-Net, and VAE Decoding should be skipped or not. If not skipped, the input image at that time is saved and updated as the reference image $I_{ref}$ for future use. This probabilistic skipping mechanism allows the network to operate fully in dynamic scenes with low inter-frame similarity, while in static scenes with high inter-frame similarity, the network's operational rate decreases, conserving computational resources. The GPU usage is modulated seamlessly based on the similarity of the input images, enabling smooth adaptation to scenes with varying dynamics. 
+
+\begin{figure*}[!t]
+  \centering
+  \begin{minipage}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figure/Inference_speed_comparision_withoutTRT.png}
+    \caption{Average inference time comparison between Stream Batch and normal sequential denoising without TensorRT.}
+    \label{fig:infe_comp_withoutTRT}
+  \end{minipage}
+  \hfill % Adds horizontal space between the figures
+  \begin{minipage}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figure/Inference_speed_comparision_withTRT.png}
+    \caption{Average inference time comparison between Stream Batch and normal sequential denoising with using TensorRT.}
+    \label{fig:infe_comp_withTRT}
+  \end{minipage}
+\end{figure*}
+
+\textit{Note:} We emphasize that compared to determining whether we skip the compute via a hard threshold, the proposed probability-sampling-based similarity filtering strategy leads to a smoother video generation. Because the hard threshold is prone to making the video stuck, which hurts the impression of watching video streaming, while the sampling-based method significantly improves the smoothness. For the other efficiency improvement methods, we illustrate them in the supplementary material.
+
+
+
