@@ -1,9 +1,9 @@
 [project]
 authors = [{name = "igamenovoer", email = "igamenovoer@mac.com"}]
-dependencies = []
 name = "demo-paper-survey"
 requires-python = ">= 3.11"
 version = "0.1.0"
+dependencies = [ "mdutils>=1.8.1,<2", "python-docx>=1.2.0,<2", "python-pptx>=1.0.2,<2", "opencv-python>=4.12.0.88,<5", "scipy>=1.16.3,<2"]
 
 [build-system]
 build-backend = "hatchling.build"
